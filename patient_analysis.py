@@ -3,12 +3,13 @@ from datetime import datetime
 
 def parse_data(patient_filename: str, lab_filename: str, choose: str) -> list:
     """
-    This function will read the patient and lab data from txt files and return a list of dictionaries,
+    This function will read the patient and lab data from txt files,
+    Return a list of dictionaries,
     Each dictionary will contain the data for one patient or lab,
     Please Choose either "Patients" or "Lab" to specify the data you need,
     The data expected to be delimited by tab, not any other type of delimiter.
-    patient_filename: the name of the file containing the patient data, in txt format
-    lab_filename: the name of the file containing the lab data, in txt format
+    patient_filename: file containing the patient data, txt format
+    lab_filename: the name of the file containing the lab data, txt format
     choose: the data you need, either "Patients" or "Lab"
     """
     patients_data = []
@@ -45,9 +46,9 @@ def parse_data(patient_filename: str, lab_filename: str, choose: str) -> list:
 
 def patient_age(records: list, patient_id: str) -> int:
     """
-    This function will return the age of the patient with the given patient_id.
-    records: the list of dictionaries containing the patient data, in list format
-    patient_id: the id of the patient, in string format
+    Return the age of the patient with the given patient_id.
+    records: the list of dictionaries containing the patient data, list format
+    patient_id: the id of the patient, string format
     """
     for i in records:
         if i["PatientID"] == patient_id:
@@ -66,12 +67,13 @@ def patient_is_sick(
     records: list, patient_id: str, lab_name: str, operator: str, value: float
 ):
     """
-    This function will return True if the patient with the given patient_id has a lab value that is greater than the given value.
-    records: the list of dictionaries containing the lab data, use the parse_data function to obtain this input
-    patient_id: the id of the patient, in string format
-    lab_name: the name of the lab test, in string format
-    operator: the operator to use in the comparison, in string format
-    value: the value to compare the lab value, in float format
+    Return True if the patient with the given patient_id \
+    has lab value that is greater than the given value.
+    records: list of dictionaries containing lab data from parse_data function
+    patient_id: the id of the patient, string format
+    lab_name: the name of the lab test, string format
+    operator: the operator to use in the comparison, string format
+    value: the value to compare the lab value, float format
     """
     i = 0
     while i < (len(records)):
