@@ -1,73 +1,73 @@
-from datetime import datetime
+"""Give an analysis of patient based on personal and lab results data."""
 
 
-def parse_data(patient_filename: str, lab_filename: str, choose: str) -> list:
+def parse_data(
+    patient_filename: str, lab_filename: str
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     """
-    This function will read the patient and lab data from txt files,
-    Return a list of dictionaries,
+    Make a tuple consisting patient personal file and lab results.
+
+    Return a list of tuple containing a list filled with dictionaries,
     Each dictionary will contain the data for one patient or lab,
     Please Choose either "Patients" or "Lab" to specify the data you need,
     The data expected to be delimited by tab, not any other type of delimiter.
+
     patient_filename: file containing the patient data, txt format
     lab_filename: the name of the file containing the lab data, txt format
     choose: the data you need, either "Patients" or "Lab"
     """
     patients_data = []
     labs_data = []
-    with open(patient_filename, encoding="utf-8-sig") as f:
-        header = f.readline().strip().split("\t")
-        for line in f:
-            values = line.strip().split("\t")
-            row = {}
-            for i, value in enumerate(values):
-                row[header[i]] = value
-                pass
-            patients_data.append(row)
-            pass
-        pass
-    with open(lab_filename, encoding="utf-8-sig") as f:
-        header = f.readline().strip().split("\t")
-        for line in f:
-            values = line.strip().split("\t")
-            row = {}
-            for i, value in enumerate(values):
-                row[header[i]] = value
-                pass
-            labs_data.append(row)
-            pass
-        pass
-    if choose == "Patients":
-        return patients_data
-    elif choose == "Lab":
-        return labs_data
-    else:
-        return f'Please Choose Either "Patients" or "Lab" data'
+    temp_list = [patient_filename, lab_filename]
+    for i in range(len(temp_list)):
+        with open(temp_list[i], encoding="utf-8-sig") as f:
+            header = f.readline().strip().split("\t")
+            for line in f:
+                values = line.strip().split("\t")
+                row = {}
+                for j, value in enumerate(values):
+                    row[header[j]] = value
+                if temp_list[i] == patient_filename:
+                    patients_data.append(row)
+                else:
+                    labs_data.append(row)
+    return (patients_data, labs_data)
 
 
-def patient_age(records: list, patient_id: str) -> int:
+def patient_age(
+    records: tuple[list[dict[str, str]], list[dict[str, str]]], patient_id: str
+) -> int:
     """
+    Give the year describing patient's age.
+
     Return the age of the patient with the given patient_id.
     records: the list of dictionaries containing the patient data, list format
     patient_id: the id of the patient, string format
     """
-    for i in records:
+    from datetime import datetime
+
+    patient_age = 0
+    for i in records[0]:
         if i["PatientID"] == patient_id:
             pasien = datetime.strptime(
                 i["PatientDateOfBirth"], "%Y-%m-%d %H:%M:%S.%f"
             )
             hari_ini = datetime.today()
-            return int((hari_ini - pasien).days / 365.25)
-        else:
-            pass
-        pass
-    pass
+            patient_age = int((hari_ini - pasien).days / 365.25)
+    return patient_age
 
 
 def patient_is_sick(
-    records: list, patient_id: str, lab_name: str, operator: str, value: float
-):
+    records: tuple[list[dict[str, str]], list[dict[str, str]]],
+    patient_id: str,
+    lab_name: str,
+    operator: str,
+    value: float,
+) -> bool:
     """
-    Return True if the patient with the given patient_id \
+    Give a boolean value describing patient sick status.
+
+    Return True if the patient with the given patient_id
     has lab value that is greater than the given value.
     records: list of dictionaries containing lab data from parse_data function
     patient_id: the id of the patient, string format
@@ -76,19 +76,20 @@ def patient_is_sick(
     value: the value to compare the lab value, float format
     """
     i = 0
-    while i < (len(records)):
+    lab_list = records[1]
+    while i < (len(lab_list) - 1):
         if (
-            (records[i]["PatientID"] == patient_id)
-            and (records[i]["LabName"] == lab_name)
+            (lab_list[i]["PatientID"] == patient_id)
+            and (lab_list[i]["LabName"] == lab_name)
             and (operator == ">")
-            and (value < float(records[i]["LabValue"]))
+            and (value < float(lab_list[i]["LabValue"]))
         ):
             return True
         elif (
-            (records[i]["PatientID"] == patient_id)
-            and (records[i]["LabName"] == lab_name)
+            (lab_list[i]["PatientID"] == patient_id)
+            and (lab_list[i]["LabName"] == lab_name)
             and (operator == "<")
-            and (value > float(records[i]["LabValue"]))
+            and (value > float(lab_list[i]["LabValue"]))
         ):
             return True
         else:
@@ -97,22 +98,14 @@ def patient_is_sick(
 
 
 if __name__ == "__main__":
-    records_patients = parse_data(
+    records = parse_data(
         "../ehr_files/PatientCorePopulatedTable.txt",
         "../ehr_files/LabsCorePopulatedTable.txt",
-        "Patients",
     )
-    records_lab = parse_data(
-        "../ehr_files/PatientCorePopulatedTable.txt",
-        "../ehr_files/LabsCorePopulatedTable.txt",
-        "Lab",
-    )
-    print(
-        patient_age(records_patients, "1A8791E3-A61C-455A-8DEE-763EB90C9B2C")
-    )
+    print(patient_age(records, "1A8791E3-A61C-455A-8DEE-763EB90C9B2C"))
     print(
         patient_is_sick(
-            records_lab,
+            records,
             "1A8791E3-A61C-455A-8DEE-763EB90C9B2C",
             "METABOLIC: ALBUMIN",
             ">",
