@@ -1,4 +1,5 @@
 """Give an analysis of patient based on personal and lab results data."""
+from datetime import datetime
 
 
 def parse_data(
@@ -7,14 +8,12 @@ def parse_data(
     """
     Make a tuple consisting patient personal file and lab results.
 
-    Return a list of tuple containing a list filled with dictionaries,
-    Each dictionary will contain the data for one patient or lab,
-    Please Choose either "Patients" or "Lab" to specify the data you need,
+    Return a tuple containing two lists of dictionaries,
+    Each dictionary will contain the data for one patient or lab result,
     The data expected to be delimited by tab, not any other type of delimiter.
 
     patient_filename: file containing the patient data, txt format
     lab_filename: the name of the file containing the lab data, txt format
-    choose: the data you need, either "Patients" or "Lab"
     """
     patients_data = []
     labs_data = []
@@ -44,8 +43,6 @@ def patient_age(
     records: the list of dictionaries containing the patient data, list format
     patient_id: the id of the patient, string format
     """
-    from datetime import datetime
-
     patient_age = 0
     for i in records[0]:
         if i["PatientID"] == patient_id:
@@ -68,7 +65,7 @@ def patient_is_sick(
     Give a boolean value describing patient sick status.
 
     Return True if the patient with the given patient_id
-    has lab value that is greater than the given value.
+    has lab value that is greater than or less than the given value.
     records: list of dictionaries containing lab data from parse_data function
     patient_id: the id of the patient, string format
     lab_name: the name of the lab test, string format
@@ -95,20 +92,3 @@ def patient_is_sick(
         else:
             i += 1
     return False
-
-
-if __name__ == "__main__":
-    records = parse_data(
-        "../ehr_files/PatientCorePopulatedTable.txt",
-        "../ehr_files/LabsCorePopulatedTable.txt",
-    )
-    print(patient_age(records, "1A8791E3-A61C-455A-8DEE-763EB90C9B2C"))
-    print(
-        patient_is_sick(
-            records,
-            "1A8791E3-A61C-455A-8DEE-763EB90C9B2C",
-            "METABOLIC: ALBUMIN",
-            ">",
-            4.0,
-        )
-    )
