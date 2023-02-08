@@ -2,9 +2,25 @@
 from datetime import datetime
 
 
+def process_file(filepath: str) -> list[dict[str, str]]:
+    """
+    Produce a list for versatile use of any txt format file.
+
+    filepath: file path
+    """
+    hold_data = []
+    with open(filepath, encoding="utf-8-sig") as f:
+        header = f.readline().strip().split("\t")
+        for line in f:
+            values = line.strip().split("\t")
+            row = dict(zip(header, values))
+            hold_data.append(row)
+    return hold_data
+
+
 def parse_data(
     patient_filename: str, lab_filename: str
-) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+) -> tuple[list[dict[str, str]], ...]:
     """
     Make a tuple consisting patient personal file and lab results.
 
@@ -15,22 +31,11 @@ def parse_data(
     patient_filename: file containing the patient data, txt format
     lab_filename: the name of the file containing the lab data, txt format
     """
-    patients_data = []
-    labs_data = []
-    temp_list = [patient_filename, lab_filename]
-    for i in range(len(temp_list)):
-        with open(temp_list[i], encoding="utf-8-sig") as f:
-            header = f.readline().strip().split("\t")
-            for line in f:
-                values = line.strip().split("\t")
-                row = {}
-                for j, value in enumerate(values):
-                    row[header[j]] = value
-                if temp_list[i] == patient_filename:
-                    patients_data.append(row)
-                else:
-                    labs_data.append(row)
-    return (patients_data, labs_data)
+    final_tuple = []
+    source_list = [patient_filename, lab_filename]
+    for i in range(len(source_list)):
+        final_tuple.append(process_file(source_list[i]))
+    return tuple(final_tuple)
 
 
 def patient_age(
