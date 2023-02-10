@@ -7,15 +7,17 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     Produce a list for versatile use of any txt format file.
 
     filepath: file path
+
+    O(N**2) total
     """
-    hold_data = []
-    with open(filepath, encoding="utf-8-sig") as f:
-        header = f.readline().strip().split("\t")
-        for line in f:
-            values = line.strip().split("\t")
-            row = dict(zip(header, values))
-            hold_data.append(row)
-    return hold_data
+    hold_data = []  # O(1)
+    with open(filepath, encoding="utf-8-sig") as f:  # N times
+        header = f.readline().strip().split("\t")  # O(1)
+        for line in f:  # N times
+            values = line.strip().split("\t")  # O(1)
+            row = dict(zip(header, values))  # O(1)
+            hold_data.append(row)  # O(1)
+    return hold_data  # O(1)
 
 
 def parse_data(
@@ -30,12 +32,10 @@ def parse_data(
 
     patient_filename: file containing the patient data, txt format
     lab_filename: the name of the file containing the lab data, txt format
+
+    O(1) total
     """
-    final_tuple = []
-    source_list = [patient_filename, lab_filename]
-    for i in range(len(source_list)):
-        final_tuple.append(process_file(source_list[i]))
-    return tuple(final_tuple)
+    return process_file(patient_filename), process_file(lab_filename)  # O(1)
 
 
 def patient_age(
@@ -47,16 +47,18 @@ def patient_age(
     Return the age of the patient with the given patient_id.
     records: the list of dictionaries containing the patient data, list format
     patient_id: the id of the patient, string format
+
+    O(N**2) total
     """
-    patient_age = 0
-    for i in records[0]:
-        if i["PatientID"] == patient_id:
-            pasien = datetime.strptime(
-                i["PatientDateOfBirth"], "%Y-%m-%d %H:%M:%S.%f"
-            )
-            hari_ini = datetime.today()
-            patient_age = int((hari_ini - pasien).days / 365.25)
-    return patient_age
+    day_now = datetime.today()  # O(1)
+    patient_age = 0  # O(1)
+    for patient in records[0]:  # N times
+        if patient["PatientID"] == patient_id:  # N times
+            day_patient = datetime.strptime(
+                patient["PatientDateOfBirth"], "%Y-%m-%d %H:%M:%S.%f"
+            )  # O(1)
+            patient_age = int((day_now - day_patient).days / 365.25)  # O(1)
+    return patient_age  # O(1)
 
 
 def patient_is_sick(
@@ -76,24 +78,22 @@ def patient_is_sick(
     lab_name: the name of the lab test, string format
     operator: the operator to use in the comparison, string format
     value: the value to compare the lab value, float format
+
+    O(N**3) total
     """
-    i = 0
-    lab_list = records[1]
-    while i < (len(lab_list) - 1):
+    for lab in records[1][:-1]:  # N times
         if (
-            (lab_list[i]["PatientID"] == patient_id)
-            and (lab_list[i]["LabName"] == lab_name)
+            (lab["PatientID"] == patient_id)
+            and (lab["LabName"] == lab_name)
             and (operator == ">")
-            and (value < float(lab_list[i]["LabValue"]))
-        ):
-            return True
+            and (value < float(lab["LabValue"]))
+        ):  # N times
+            return True  # O(1)
         elif (
-            (lab_list[i]["PatientID"] == patient_id)
-            and (lab_list[i]["LabName"] == lab_name)
+            (lab["PatientID"] == patient_id)
+            and (lab["LabName"] == lab_name)
             and (operator == "<")
-            and (value > float(lab_list[i]["LabValue"]))
-        ):
-            return True
-        else:
-            i += 1
-    return False
+            and (value > float(lab["LabValue"]))
+        ):  # N times
+            return True  # O(1)
+    return False  # O(1)
