@@ -97,3 +97,8 @@ def patient_is_sick(
         ):  # N times
             return True  # O(1)
     return False  # O(1)
+
+
+# For improvement, I think I need to make a line of code to ensure \
+# the input are lowercase, certain format, and probably try to apply\
+# recursion for lab data.
