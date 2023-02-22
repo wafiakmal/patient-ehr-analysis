@@ -4,14 +4,24 @@ from datetime import datetime
 
 def process_file(filepath: str) -> list[dict[str, str]]:
     """
-    Produce a list for versatile use of any txt format file.
+    Produce a list for versatile use of any txt format file with tab delimiter.
 
     filepath: file path
 
-    O(N**2) total
+    Time complexity analysis:
+    An empty list is created for holding data O(1).
+    The file based on filepath is opened with utf-8-sig encoding O(1).
+    A key created for the header of the file with O(1) operation.
+    Using for loop, each line in the file is read with N times.
+    A dictionary is then created based on the value of each line in the file.
+    The value added to dictionary is performed with 3 times O(1), for N times.
+    The dictionary is then appended to a list O(1), which is returned O(1).
+    Dropping the constant, the time complexity is O(N).
+
+    This function will scale linearly with the number of lines file (N times).
     """
     hold_data = []  # O(1)
-    with open(filepath, encoding="utf-8-sig") as f:  # N times
+    with open(filepath, encoding="utf-8-sig") as f:  # O(1)
         header = f.readline().strip().split("\t")  # O(1)
         for line in f:  # N times
             values = line.strip().split("\t")  # O(1)
@@ -33,7 +43,10 @@ def parse_data(
     patient_filename: file containing the patient data, txt format
     lab_filename: the name of the file containing the lab data, txt format
 
-    O(1) total
+    Time complexity analysis:
+    The function process_file is called twice with O(1) time complexity.
+
+    This function complexity will scale according to the process_file function.
     """
     return process_file(patient_filename), process_file(lab_filename)  # O(1)
 
@@ -48,7 +61,16 @@ def patient_age(
     records: the list of dictionaries containing the patient data, list format
     patient_id: the id of the patient, string format
 
-    O(N**2) total
+    Time complexity analysis:
+    A variable is created to hold the current date with O(1) time complexity.
+    A dummy variable is created to hold the initial patient age with O(1) time.
+    A for loop is created to iterate through the patient data with N times.
+    An if statement to check if the patient id is the same with N times.
+    O(2) process done if the condition is met, replacing patient age with O(1).
+    The patient age is returned with O(1) time complexity.
+    Dropping the constant, the time complexity is O(N**2).
+
+    This function will scale linearly with the number of patient recrods.
     """
     day_now = datetime.today()  # O(1)
     patient_age = 0  # O(1)
@@ -79,7 +101,15 @@ def patient_is_sick(
     operator: the operator to use in the comparison, string format
     value: the value to compare the lab value, float format
 
-    O(N**3) total
+    Time complexity analysis:
+    A for loop is created to iterate through the lab data with N times.
+    An if-elif statement is created to check if the patient id, lab name,
+    operator, and value is the same with N times.
+    Return True if the condition is met with O(1) time complexity.
+    No placeholder is created for the else statement.
+    Overall, the time complexity is O(N**2).
+
+    This function will scale linearly with the number of lab records (N times).
     """
     for lab in records[1][:-1]:  # N times
         if (
@@ -97,8 +127,3 @@ def patient_is_sick(
         ):  # N times
             return True  # O(1)
     return False  # O(1)
-
-
-# For improvement, I think I need to make a line of code to ensure \
-# the input are lowercase, certain format, and probably try to apply\
-# recursion for lab data.
