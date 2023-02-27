@@ -18,7 +18,7 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     The dictionary is then appended to a list O(1), which is returned O(1).
     Dropping the constant, the time complexity is O(N).
 
-    This function will scale linearly with the number of lines file (N times).
+    Function will scale linearly with the number of lines in file (N times).
     """
     hold_data = []  # O(1)
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
@@ -65,7 +65,7 @@ def patient_age(
     A variable is created to hold the current date with O(1) time complexity.
     A dummy variable is created to hold the initial patient age with O(1) time.
     A for loop is created to iterate through the patient data with N times.
-    An if statement to check if the patient id is the same with N times.
+    An if statement to check if the patient id is the same with O(1) times.
     O(2) process done if the condition is met, replacing patient age with O(1).
     The patient age is returned with O(1) time complexity.
     Dropping the constant, the time complexity is O(N**2).
