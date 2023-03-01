@@ -18,7 +18,8 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     The dictionary is then appended to a list O(1), which is returned O(1).
     Dropping the constant, the time complexity is O(N).
 
-    Function will scale linearly with the number of lines in file (N times).
+    Function will scale linearly with the number of lines and columns
+    in file.
     """
     hold_data = []  # O(1)
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
@@ -46,13 +47,14 @@ def parse_data(
     Time complexity analysis:
     The function process_file is called twice with O(1) time complexity.
 
-    This function complexity will scale according to the process_file function.
+    This function complexity will scale according to the process_file function
+    which is O(N).
     """
     return process_file(patient_filename), process_file(lab_filename)  # O(1)
 
 
 def patient_age(
-    records: tuple[list[dict[str, str]], list[dict[str, str]]], patient_id: str
+    records: tuple[list[dict[str, str]], ...], patient_id: str
 ) -> int:
     """
     Give the year describing patient's age.
@@ -66,11 +68,11 @@ def patient_age(
     A dummy variable is created to hold the initial patient age with O(1) time.
     A for loop is created to iterate through the patient data with N times.
     An if statement to check if the patient id is the same with O(1) times.
-    O(2) process done if the condition is met, replacing patient age with O(1).
+    O(1) process done if the condition is met, replacing patient age with O(1).
     The patient age is returned with O(1) time complexity.
-    Dropping the constant, the time complexity is O(N**2).
+    Dropping the constant, the time complexity is O(N).
 
-    This function will scale linearly with the number of patient recrods.
+    This function will scale linearly with the number of patient records.
     """
     day_now = datetime.today()  # O(1)
     patient_age = 0  # O(1)
@@ -84,7 +86,7 @@ def patient_age(
 
 
 def patient_is_sick(
-    records: tuple[list[dict[str, str]], list[dict[str, str]]],
+    records: tuple[list[dict[str, str]], ...],
     patient_id: str,
     lab_name: str,
     operator: str,
@@ -104,10 +106,10 @@ def patient_is_sick(
     Time complexity analysis:
     A for loop is created to iterate through the lab data with N times.
     An if-elif statement is created to check if the patient id, lab name,
-    operator, and value is the same with N times.
+    operator, and value is the same with input O(1) times.
     Return True if the condition is met with O(1) time complexity.
     No placeholder is created for the else statement.
-    Overall, the time complexity is O(N**2).
+    Overall, the time complexity is O(N).
 
     This function will scale linearly with the number of lab records (N times).
     """
@@ -117,13 +119,13 @@ def patient_is_sick(
             and (lab["LabName"] == lab_name)
             and (operator == ">")
             and (value < float(lab["LabValue"]))
-        ):  # N times
+        ):  # O(1)
             return True  # O(1)
         elif (
             (lab["PatientID"] == patient_id)
             and (lab["LabName"] == lab_name)
             and (operator == "<")
             and (value > float(lab["LabValue"]))
-        ):  # N times
+        ):  # O(1)
             return True  # O(1)
     return False  # O(1)
