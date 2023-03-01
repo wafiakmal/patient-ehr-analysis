@@ -11,7 +11,6 @@ PatientRecord = Dict[str, str]
 PatientRecords = Tuple[List[PatientRecord], List[PatientRecord]]
 
 
-# Use the fake_files fixture to generate fake files for testing parse_data
 def test_parse_data() -> None:
     with fake_files(
         [
@@ -84,9 +83,8 @@ def test_patient_age() -> None:
     assert result == 33
 
 
-@pytest.fixture
-def lab_results() -> PatientRecords:
-    return (
+def test_patient_is_sick() -> None:
+    lab_results = (
         [
             {"PatientID": "1", "PatientName": "Alice"},
         ],
@@ -108,9 +106,6 @@ def lab_results() -> PatientRecords:
             },
         ],
     )
-
-
-def test_patient_is_sick(lab_results: PatientRecords) -> None:
     patient_id = "1"
     lab_name = "METABOLIC: ALBUMIN"
     operator = ">"
@@ -121,7 +116,29 @@ def test_patient_is_sick(lab_results: PatientRecords) -> None:
     assert result
 
 
-def test_patient_is_not_sick(lab_results: PatientRecords) -> None:
+def test_patient_is_not_sick() -> None:
+    lab_results = (
+        [
+            {"PatientID": "1", "PatientName": "Alice"},
+        ],
+        [
+            {
+                "PatientID": "1",
+                "LabName": "METABOLIC: ALBUMIN",
+                "LabValue": "100",
+            },
+            {
+                "PatientID": "1",
+                "LabName": "METABOLIC: ALBUMIN",
+                "LabValue": "110",
+            },
+            {
+                "PatientID": "1",
+                "LabName": "Blood pressure",
+                "LabValue": "120/80",
+            },
+        ],
+    )
     patient_id = "1"
     lab_name = "METABOLIC: ALBUMIN"
     operator = "<"
@@ -132,7 +149,29 @@ def test_patient_is_not_sick(lab_results: PatientRecords) -> None:
     assert not result
 
 
-def test_patient_not_exist(lab_results: PatientRecords) -> None:
+def test_patient_not_exist() -> None:
+    lab_results = (
+        [
+            {"PatientID": "1", "PatientName": "Alice"},
+        ],
+        [
+            {
+                "PatientID": "1",
+                "LabName": "METABOLIC: ALBUMIN",
+                "LabValue": "100",
+            },
+            {
+                "PatientID": "1",
+                "LabName": "METABOLIC: ALBUMIN",
+                "LabValue": "110",
+            },
+            {
+                "PatientID": "1",
+                "LabName": "Blood pressure",
+                "LabValue": "120/80",
+            },
+        ],
+    )
     patient_id = "2"
     lab_name = "METABOLIC: ALBUMIN"
     operator = ">"
