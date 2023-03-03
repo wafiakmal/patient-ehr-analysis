@@ -9,24 +9,25 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     filepath: file path
 
     Time complexity analysis:
-    An empty list is created for holding data O(1).
-    The file based on filepath is opened with utf-8-sig encoding O(1).
-    A key created for the header of the file that scales with number of column
-    size M times.
-    Using for loop, each line in the file is read with N times.
-    A dictionary is then created based on the value of each line in the file.
-    The value added to dictionary is performed with 3 times O(1), for N times.
-    The dictionary is then appended to a list O(1), which is returned O(1).
-    Overall time complexity is O(N*M)
+    hold_data is created for holding data O(1) time complexity.
+    The file in filepath is opened with utf-8-sig encoding O(1) time.
+    A key created representing header of the file,
+      that scales with number of column size O(M) time complexity.
+    Using for loop, each line in the file is read O(N) time complexity.
+    Values in each line is then split by tab O(M) time complexity.
+    A dictionary is then created by header and values O(M) time complexity.
+    The dictionary is then appended to a list O(1) time complexity
+    Return hold_data with O(1) time complexity.
+    Overall time complexity is O(N*M).
 
     Function will scale linearly with the number of lines and columns
-    in file.
+    in file, which is O(N*M).
     """
     hold_data = []  # O(1)
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
-        header = f.readline().strip().split("\t")  # M times
-        for line in f:  # N times
-            values = line.strip().split("\t")  # O(1)
+        header = f.readline().strip().split("\t")  # O(M)
+        for line in f:  # O(N)
+            values = line.strip().split("\t")  # O(M)
             row = dict(zip(header, values))  # O(1)
             hold_data.append(row)  # O(1)
     return hold_data  # O(1)
@@ -47,11 +48,12 @@ def parse_data(
 
     Time complexity analysis:
     The function process_file is called twice with O(1) time complexity.
+    The function process_file is called with O(N*M) time complexity.
 
     This function complexity will scale according to the process_file function
     which is O(N*M).
     """
-    return process_file(patient_filename), process_file(lab_filename)  # O(1)
+    return process_file(patient_filename), process_file(lab_filename)  # O(N*M)
 
 
 def patient_age(
@@ -67,18 +69,19 @@ def patient_age(
     Time complexity analysis:
     A variable is created to hold the current date with O(1) time complexity.
     A dummy variable is created to hold the initial patient age with O(1) time.
-    A for loop is created to iterate through the patient data with N times.
+    A for loop is created to iterate through the patient data with O(N) times.
     An if statement to check if the patient id is the same with O(1) times.
     O(1) process done if the condition is met, replacing patient age with O(1).
     The patient age is returned with O(1) time complexity.
     Dropping the constant, the time complexity is O(N).
 
-    This function will scale linearly with the number of patient records.
+    This function will scale linearly with the number of patient records,
+    which is O(N).
     """
     day_now = datetime.today()  # O(1)
     patient_age = 0  # O(1)
-    for patient in records[0]:  # N times
-        if patient["PatientID"] == patient_id:  # N times
+    for patient in records[0]:  # O(N)
+        if patient["PatientID"] == patient_id:  # O(N)
             day_patient = datetime.strptime(
                 patient["PatientDateOfBirth"], "%Y-%m-%d %H:%M:%S.%f"
             )  # O(1)
@@ -105,16 +108,17 @@ def patient_is_sick(
     value: the value to compare the lab value, float format
 
     Time complexity analysis:
-    A for loop is created to iterate through the lab data with N times.
+    A for loop is created to iterate through the lab data with O(N).
     An if-elif statement is created to check if the patient id, lab name,
-    operator, and value is the same with input O(1) times.
+    operator, and value is the same with input with O(1) time complexity.
     Return True if the condition is met with O(1) time complexity.
     No placeholder is created for the else statement.
     Overall, the time complexity is O(N).
 
-    This function will scale linearly with the number of lab records (N times).
+    This function will scale linearly with the number of lab records , which
+    is O(N).
     """
-    for lab in records[1][:-1]:  # N times
+    for lab in records[1][:-1]:  # O(N)
         if (
             (lab["PatientID"] == patient_id)
             and (lab["LabName"] == lab_name)
