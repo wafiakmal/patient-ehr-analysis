@@ -13,10 +13,11 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     The file based on filepath is opened with utf-8-sig encoding O(1).
     A key created for the header of the file with O(1) operation.
     Using for loop, each line in the file is read with N times.
-    A dictionary is then created based on the value of each line in the file.
+    Creating a dictionary from the header row and data row with a linear time
+    operation with respect to the number of columns in the file M times.
     The value added to dictionary is performed with 3 times O(1), for N times.
     The dictionary is then appended to a list O(1), which is returned O(1).
-    Dropping the constant, the time complexity is O(N).
+    Overall time complexity is O(N*M)
 
     Function will scale linearly with the number of lines and columns
     in file.
@@ -25,7 +26,7 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
         header = f.readline().strip().split("\t")  # O(1)
         for line in f:  # N times
-            values = line.strip().split("\t")  # O(1)
+            values = line.strip().split("\t")  # M times
             row = dict(zip(header, values))  # O(1)
             hold_data.append(row)  # O(1)
     return hold_data  # O(1)
@@ -48,7 +49,7 @@ def parse_data(
     The function process_file is called twice with O(1) time complexity.
 
     This function complexity will scale according to the process_file function
-    which is O(N).
+    which is O(N*M).
     """
     return process_file(patient_filename), process_file(lab_filename)  # O(1)
 
