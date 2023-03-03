@@ -26,7 +26,7 @@ def process_file(filepath: str) -> list[dict[str, str]]:
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
         header = f.readline().strip().split("\t")  # M times
         for line in f:  # N times
-            values = line.strip().split("\t")  #  O(1)
+            values = line.strip().split("\t")  # O(1)
             row = dict(zip(header, values))  # O(1)
             hold_data.append(row)  # O(1)
     return hold_data  # O(1)
