@@ -2,52 +2,107 @@
 from datetime import datetime
 
 
-def process(
-    filepath: str,
-) -> dict[str, list[list[str]]]:
+def base_data(filepath: str) -> dict[str, dict[str, str]]:
     """
-    Produce a dictionary for any txt file with tab delimiter.
+    Produce a dictionary for patient base data.
 
-    filepath: file path
-    hold_data: dictionary to hold data
+    Parameter
+    ---------
+    filepath: str
+        Location of the file containing the patient personal file, txt format.
+
+    Return
+    ------
+    hold_data: dict
+        Dictionary containing patient personal file.
 
     Time complexity analysis:
     hold_data is created for holding data O(1) time complexity.
     The file in filepath is opened with utf-8-sig encoding O(1) time.
+    The header is read and split by tab O(M) time complexity.
     Loop through each line in the file O(N) time complexity.
     Values in each line is then split by tab O(M) time complexity.
-    If key is not in the dictionary, create a key and append the value O(1).
-    Elif key is in the dictionary, append the value O(1).
+    The patient_id is extracted from the values O(1) time complexity.
+    The row is created by zipping the header and values O(1) time complexity.
+    The row is added to the dictionary with patient_id as key O(1) time.
     Return hold_data with O(1) time complexity.
     Overall time complexity is O(N*M).
 
     Function will scale linearly with the number of lines and columns
         in the file, which is O(N*M).
     """
-    hold_data: dict[str, list[list[str]]] = dict()  # O(1)
+    hold_data = dict()  # O(1)
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
+        header = f.readline().strip().split("\t")  # O(M)
         for line in f:  # O(N)
             values = line.strip().split("\t")  # O(M)
-            if values[0] not in hold_data:
-                hold_data[values[0]] = []  # O(1)
-                hold_data[values[0]].append(values[1:])  # O(1)
-            else:
-                hold_data[values[0]].append(values[1:])  # O(1)
+            patient_id = values[0]  # O(1)
+            row = dict(zip(header[1:], values[1:]))  # O(1)
+            hold_data[patient_id] = row  # O(1)
     return hold_data  # O(1)
+
+
+def records_data(filepath: str) -> dict[str, list[dict[str, str]]]:
+    """
+    Produce a dictionary for patient lab records.
+
+    Parameter
+    ---------
+    filepath: str
+        Location of the file containing the lab results, txt format.
+
+    Return
+    ------
+    hold_data: dict
+        Dictionary containing lab records of each patient.
+
+    Time complexity analysis:
+    hold_data is created for holding data O(1) time complexity.
+    The file in filepath is opened with utf-8-sig encoding O(1) time.
+    The header is read and split by tab O(M) time complexity.
+    Loop through each line in the file O(N) time complexity.
+    Values in each line is then split by tab O(M) time complexity.
+    The patient_id is extracted from the values O(1) time complexity.
+    The row is created by zipping the header and values O(1) time complexity.
+    The row is added to the dictionary with patient_id as key O(1) time.
+    Return hold_data with O(1) time complexity.
+    Overall time complexity is O(N*M).
+
+    Function will scale linearly with the number of lines and columns
+        in the file, which is O(N*M).
+    """
+    holds_data: dict[str, list[dict[str, str]]] = dict()  # O(1)
+    with open(filepath, encoding="utf-8-sig") as f:  # O(1)
+        header = f.readline().strip().split("\t")  # O(M)
+        for line in f:  # O(N)
+            values = line.strip().split("\t")  # O(M)
+            patient_id = values[0]  # O(1)
+            row = dict(zip(header[1:], values[1:]))  # O(1)
+            if patient_id not in holds_data:  # O(1)
+                holds_data[patient_id] = []  # O(1)
+                holds_data[patient_id].append(row)  # O(1)
+            else:
+                holds_data[patient_id].append(row)  # O(1)
+    return holds_data  # O(1)
 
 
 def parse_data(
     patient_filename: str, lab_filename: str
-) -> tuple[dict[str, list[list[str]]], ...]:
+) -> tuple[dict[str, dict[str, str]], dict[str, list[dict[str, str]]]]:
     """
     Make a tuple consisting patient personal file and lab results.
 
-    Return a tuple containing two dictionaries,
-    Each dictionary will contain the data for one patient or lab result,
-    The data expected to be delimited by tab, not any other type of delimiter.
+    Parameter
+    ---------
+    patient_filename: str
+        Location of the file containing the patient personal file, txt format.
+    lab_filename: str
+        Location of the file containing the lab results, txt format.
 
-    patient_filename: file containing the patient data, txt format
-    lab_filename: the name of the file containing the lab data, txt format
+    Return
+    ------
+    tuple
+        Tuple of patient personal file and lab results.
 
     Time complexity analysis:
     The function process_file is called twice with O(1) time complexity.
@@ -56,18 +111,26 @@ def parse_data(
     This function complexity will scale according to the process_file function
         which is O(N*M).
     """
-    return process(patient_filename), process(lab_filename)  # O(N*M)
+    return base_data(patient_filename), records_data(lab_filename)  # O(1)
 
 
 def patient_age(
-    records: tuple[dict[str, list[list[str]]], ...], patient_id: str
+    records: tuple[dict[str, dict[str, str]], dict[str, list[dict[str, str]]]],
+    patient_id: str,
 ) -> int:
     """
-    Give the year describing patient's age.
+    Give the patient's age in years.
 
-    Return the age of the patient with the given patient_id.
-    records: the dictionaries containing the patient data.
-    patient_id: the id of the patient, string format.
+    Parameter
+    ---------
+    records: tuple
+        Tuple of patient personal file and lab results.
+
+    Return
+    ------
+    patient_age: int
+        Patient's age.
+
 
     Time complexity analysis:
     day_now created to hold the current date with O(1) time complexity.
@@ -80,14 +143,14 @@ def patient_age(
     """
     day_now = datetime.today()  # O(1)
     day_patient = datetime.strptime(
-        records[0][patient_id][0][1], "%Y-%m-%d %H:%M:%S.%f"
+        records[0][patient_id]["PatientDateOfBirth"], "%Y-%m-%d %H:%M:%S.%f"
     )  # O(1)
     patient_age = int((day_now - day_patient).days / 365.25)  # O(1)
     return patient_age  # O(1)
 
 
 def patient_is_sick(
-    records: tuple[dict[str, list[list[str]]], ...],
+    records: tuple[dict[str, dict[str, str]], dict[str, list[dict[str, str]]]],
     patient_id: str,
     lab_name: str,
     operator: str,
@@ -96,13 +159,23 @@ def patient_is_sick(
     """
     Give a boolean value describing patient sick status.
 
-    Return True if the patient with the given patient_id
-    has lab value that is greater than or less than the given value.
-    records: dictionaries containing lab data from parse_data function
-    patient_id: the id of the patient, string format
-    lab_name: the name of the lab test, string format
-    operator: the operator to use in the comparison, string format
-    value: the value to compare the lab value, float format
+    Parameter
+    ---------
+    records: tuple
+        Tuple of patient personal file and lab results.
+    patient_id: str
+        Patient's id.
+    lab_name: str
+        Name of the lab test.
+    operator: str
+        Operator to use in the comparison.
+    value: float
+        Value to compare the lab value.
+
+    Return
+    ------
+    boolean
+        True if the patient is sick, False otherwise.
 
     Time complexity analysis:
     If statement is used to check if patient_id is in records with O(1) time.
@@ -120,15 +193,15 @@ def patient_is_sick(
     if patient_id in records[1]:  # O(1)
         for record in records[1][patient_id]:  # O(N)
             if (
-                (record[1] == lab_name)
+                (record["LabName"] == lab_name)
                 and (operator == ">")
-                and (value < float(record[2]))
+                and (value < float(record["LabValue"]))
             ):  # O(1)
                 return True  # O(1)
             elif (
-                (record[1] == lab_name)
+                (record["LabName"] == lab_name)
                 and (operator == "<")
-                and (value > float(record[2]))
+                and (value > float(record["LabValue"]))
             ):  # O(1)
                 return True  # O(1)
     return False  # O(1)
