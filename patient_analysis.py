@@ -12,9 +12,9 @@ def base_data(filepath: str) -> dict[str, dict[str, str]]:
         Location of the file containing the patient personal file, txt format.
 
     Variables:
-    patient rows (A) : lines in the file
+    patient rows (A) : lines in the patient base data file
         Rows containing patient data unique to each "PatientID".
-    patient columns (B) : columns in the file
+    patient columns (B) : columns in the patient base data file
         Columns of "PatientID", "PatientGender", "PatientDateOfBirth",
             "PatientRace", "PatientMaritalStatus", "PatientLanguage",
             "PatientPopulationPercentageBelowPoverty".
@@ -31,23 +31,23 @@ def base_data(filepath: str) -> dict[str, dict[str, str]]:
     Time complexity analysis:
     hold_data is created for holding data O(1) time complexity.
     The file in filepath is opened with utf-8-sig encoding O(1) time.
-    Header created from splitting the first line in (A) by tab O(M) time.
-    Loop through each (A) with O(N) time complexity.
-    Values created from splitting (B) by tab with O(M) time complexity.
+    Header created from splitting the first line in (A) by tab O(MP) time.
+    Loop through each (A) with O(NP) time complexity.
+    Values created from splitting (B) by tab with O(MP) time complexity.
     The PatientID is extracted from the values O(1) time complexity.
     The row is created by zipping the header and values O(1) time complexity.
     The row is added to the dictionary with PatientID as key O(1) time.
     Return hold_data with O(1) time complexity.
-    Overall time complexity is O(N*M).
+    Overall time complexity is O(NP*MP).
 
     Function will scale linearly with the number of (A) and (B) in the file,
-        which is O(N*M).
+        which is O(NP*MP).
     """
     hold_data = dict()  # O(1)
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
-        header = f.readline().strip().split("\t")  # O(M)
-        for line in f:  # O(N)
-            values = line.strip().split("\t")  # O(M)
+        header = f.readline().strip().split("\t")  # O(MP)
+        for line in f:  # O(NP)
+            values = line.strip().split("\t")  # O(MP)
             patient_id = values[0]  # O(1)
             row = dict(zip(header[1:], values[1:]))  # O(1)
             hold_data[patient_id] = row  # O(1)
@@ -64,9 +64,9 @@ def records_data(filepath: str) -> dict[str, list[dict[str, str]]]:
         Location of the file containing the lab results, txt format.
 
     Variables:
-    lab rows (C) : lines in the file
+    lab rows (C) : lines in the lab file
         Rows containing lab records unique to each "PatientID".
-    lab columns (D) : columns in the file
+    lab columns (D) : columns in the lab file
         Columns containing "PatientID", "AdmissionID", "LabName", "LabValue",
             "LabUnits", "LabDateTime".
     header: first line of the file
@@ -82,23 +82,23 @@ def records_data(filepath: str) -> dict[str, list[dict[str, str]]]:
     Time complexity analysis:
     hold_data is created for holding data O(1) time complexity.
     The file in filepath is opened with utf-8-sig encoding O(1) time.
-    Header created from splitting the first line in (C) by tab O(M) time.
-    Loop through each (C) with O(N) time complexity.
-    Values created from splitting (D) by tab with O(M) time complexity.
+    Header created from splitting the first line in (C) by tab O(ML) time.
+    Loop through each (C) with O(NL) time complexity.
+    Values created from splitting (D) by tab with O(ML) time complexity.
     The PatientID is extracted from the values O(1) time complexity.
     The row is created by zipping the header and values O(1) time complexity.
     The row is added to the dictionary with PatientID as key O(1) time.
     Return hold_data with O(1) time complexity.
-    Overall time complexity is O(N*M).
+    Overall time complexity is O(NL*ML).
 
     Function will scale linearly with the number of (C) and (D) in the file,
-        which is O(N*M).
+        which is O(NL*ML).
     """
     holds_data: dict[str, list[dict[str, str]]] = dict()  # O(1)
     with open(filepath, encoding="utf-8-sig") as f:  # O(1)
-        header = f.readline().strip().split("\t")  # O(M)
-        for line in f:  # O(N)
-            values = line.strip().split("\t")  # O(M)
+        header = f.readline().strip().split("\t")  # O(ML)
+        for line in f:  # O(NL)
+            values = line.strip().split("\t")  # O(ML)
             patient_id = values[0]  # O(1)
             row = dict(zip(header[1:], values[1:]))  # O(1)
             if patient_id not in holds_data:  # O(1)
@@ -129,10 +129,9 @@ def parse_data(
 
     Time complexity analysis:
     The function base_data and records_data is called O(1) time complexity.
-    The function base_data and records_data is called O(N*M) time complexity.
 
-    This function complexity will scale according to the base_data and
-        records_data function which is O(N*M).
+    This function complexity will scale according to the base_data O(NP*MP)
+        and records_data function which is O(NL*ML).
     """
     return base_data(patient_filename), records_data(lab_filename)  # O(1)
 
@@ -223,7 +222,7 @@ def patient_is_sick(
     Time complexity analysis:
     If statement is used to check if patient_id is in (G) with O(1) time.
     For loop is used to loop through the lab (G) for specific patient
-      with O(N) time.
+      with O(NL) time.
     If statement is used to check if the input lab_name is the same with
         LabName in (H), then comparing input value with LabValue in (H) based
         on input operator, with O(1) time.
@@ -234,13 +233,13 @@ def patient_is_sick(
             input value, return True with O(1) time.
         Else if both conditions above is not matched, return False
             with O(1) time.
-    Overall, the time complexity is O(N).
+    Overall, the time complexity is O(NL).
 
     This function will scale linearly with the number of (G) and (H),
-        which is O(N).
+        which is O(NL).
     """
     if patient_id in records[1]:  # O(1)
-        for record in records[1][patient_id]:  # O(N)
+        for record in records[1][patient_id]:  # O(NL)
             if (
                 (record["LabName"] == lab_name)
                 and (operator == ">")
