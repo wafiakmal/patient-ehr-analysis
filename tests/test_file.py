@@ -110,4 +110,4 @@ def test_patient_is_sick() -> None:
     result3 = patient_is_sick(
         lab_results, patient_id3, lab_name3, operator3, value3
     )
-    assert result3 == False
+    assert result3 is False
