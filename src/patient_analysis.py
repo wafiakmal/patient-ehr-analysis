@@ -253,3 +253,64 @@ def patient_is_sick(
             ):  # O(1)
                 return True  # O(1)
     return False  # O(1)
+
+
+def age_first_test(
+    records: tuple[dict[str, dict[str, str]], dict[str, list[dict[str, str]]]],
+    patient_id: str,
+) -> int:
+    """
+    Return the age of the patient at the time of their first lab test.
+
+    Parameters
+    ----------
+    records : tuple
+        Tuple of patient personal file and lab results.
+    patient_id : str
+        Patient ID.
+
+    Variables
+    ---------
+    patient_dob : datetime
+        Patient date of birth.
+    first_labdate : datetime
+        Date of the first lab test.
+    cur_labdate : datetime
+        Date of the current lab test in iteration.
+
+    Returns
+    -------
+    patient_age_first_test : int
+        Age of the patient at the time of their first lab test.
+
+    Time Complexity Analysis:
+    patient_dob is created for the patient's date of birth with O(1) time.
+    first_labdate is created for placeholder of first lab test with O(1) time.
+    For loop iterates through the lab results for the patient with O(NL) time.
+    cur_labdate is created for the current lab test date with O(1) time.
+    If statement checks if first_labdate is 0 with O(1) time.
+    If statement checks if cur_labdate is older than first_labdate
+        with O(1) time.
+    patient_age_first_test is created for the age of the patient at the time
+        of their first lab test with O(1) time.
+    Return statement returns the age of the patient at the time of their
+        first lab test with O(1) time.
+    Overall time complexity is O(NL).
+
+    This function will scale linearly with the number of lab records for each
+        patient, which is O(NL).
+    """
+    patient_dob = datetime.strptime(
+        records[0][patient_id]["PatientDateOfBirth"], "%Y-%m-%d %H:%M:%S.%f"
+    )  # O(1)
+    first_labdate = datetime.today()  # O(1)
+    for labdate in records[1][patient_id]:  # O(NL)
+        cur_labdate = datetime.strptime(
+            labdate["LabDateTime"], "%Y-%m-%d %H:%M:%S.%f"
+        )  # O(1)
+        if first_labdate == datetime.today():  # O(1)
+            first_labdate = cur_labdate  # O(1)
+        elif cur_labdate < first_labdate:  # O(1)
+            first_labdate = cur_labdate  # O(1)
+    patient_age_first_test = (first_labdate - patient_dob).days // 365  # O(1)
+    return patient_age_first_test  # O(1)
