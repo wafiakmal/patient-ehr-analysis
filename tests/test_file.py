@@ -3,6 +3,7 @@ import pytest
 from patient_analysis import patient_is_sick
 from patient_analysis import patient_age
 from patient_analysis import parse_data
+from patient_analysis import age_first_test
 from fake_files import fake_files
 
 
@@ -111,3 +112,42 @@ def test_patient_is_sick() -> None:
         lab_results, patient_id3, lab_name3, operator3, value3
     )
     assert result3 is False
+
+
+def test_age_first_test() -> None:
+    records = (
+        {
+            "1": {
+                "PatientGender": "Male",
+                "PatientDateOfBirth": "1973-08-16 10:58:34.413",
+            },
+            "2": {
+                "PatientGender": "Female",
+                "PatientDateOfBirth": "1952-01-18 19:51:12.917",
+            },
+        },
+        {
+            "1": [
+                {
+                    "LabName": "METABOLIC: ALBUMIN",
+                    "LabValue": "100",
+                    "LabDateTime": "2021-01-01 10:58:34.413",
+                },
+                {
+                    "LabName": "METABOLIC: ALBUMIN",
+                    "LabValue": "110",
+                    "LabDateTime": "1992-06-27 03:32:50.653",
+                },
+            ],
+            "2": [
+                {
+                    "LabName": "METABOLIC: ALBUMIN",
+                    "LabValue": "90",
+                    "LabDateTime": "2019-01-01 10:58:34.413",
+                }
+            ],
+        },
+    )
+    patient_id = "1"
+    result = age_first_test(records, patient_id)
+    assert result == 18
