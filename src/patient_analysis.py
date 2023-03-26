@@ -308,7 +308,9 @@ def age_first_test(
         cur_labdate = datetime.strptime(
             labdate["LabDateTime"], "%Y-%m-%d %H:%M:%S.%f"
         )  # O(1)
-        if first_labdate == datetime.today() or cur_labdate < first_labdate:  # O(1)
+        if (
+            first_labdate == datetime.today() or cur_labdate < first_labdate
+        ):  # O(1)
             first_labdate = cur_labdate  # O(1)
     patient_age_first_test = (first_labdate - patient_dob).days // 365  # O(1)
     return patient_age_first_test  # O(1)
