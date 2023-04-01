@@ -18,13 +18,6 @@ class Lab:
         self.lab_value = float(lab_value)
         self.lab_date = datetime.strptime(lab_date, "%Y-%m-%d %H:%M:%S.%f")
 
-    def __str__(self) -> str:
-        """Return a string representation of the lab results."""
-        return (
-            f"Patient ID: {self.p_id}, Lab Name: {self.lab_name}, "
-            f"Lab Value: {self.lab_value}, Date: {self.lab_date}"
-        )
-
 
 class Patient:
     """Patient class for patient personal file."""
@@ -38,10 +31,6 @@ class Patient:
         self.dob = datetime.strptime(dob, "%Y-%m-%d %H:%M:%S.%f")
         self.marital = marital
         self.lab = labs
-
-    def __str__(self) -> str:
-        """Return a string representation of the patient personal file."""
-        return f"Patient: {self.p_id}, DOB: {self.dob}"
 
     @property
     def age(self) -> int:
@@ -70,8 +59,6 @@ class Patient:
                 elif operator_in == "<":
                     if self.lab[i].lab_value < value_in:
                         return True
-                else:
-                    return False
         return False
 
 
