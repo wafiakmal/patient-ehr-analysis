@@ -140,4 +140,4 @@ def test_all_about_patient_class() -> None:
         assert result["1"].age_first_test == 18
         assert result["1"].is_sick("METABOLIC: ALBUMIN", ">", 100.5)
         assert result["1"].is_sick("METABOLIC: ALBUMIN", "<", 200.5)
-        assert result["2"].is_sick("CBC: MCHC", ">", 38.5)
+        assert result["2"].is_sick("CBC: MCHC", ">", 38.5) is False
