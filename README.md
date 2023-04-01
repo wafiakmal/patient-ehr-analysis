@@ -30,51 +30,79 @@ The file is a tab delimited file with the following columns:
 All the values in both files are strings. This library will convert all the values to the appropriate data types.
 
 ## Using the library:
-The library contains 3 helper functions to process the input files and 2 main functions to calculate patient age and to determine whether or not a patient is sick.
+The library is coded in Python. This library use object-oriented approach, with combination of classes and functions. Base and lab data are stored using two separate classes, but combined into one dictionary with by `parse_data` function and patient ID as the key.
 
 Example of using the library:
 
-### To calculate patient's age, we use the `patient_age` function, general instruction for running the function:
+### To calculate patient's age, we just need to call the `.age` property of `Patient` Class. The general instruction for running the function:
 
 ```python
 from patient_analysis import parse_data
-from patient_analysis import patient_age
 
 # parse the input files
-records = parse_data('LOCATION OF YOUR PATIENT BASE DATA TXT FILE':str, 'LOCATION OF YOUR PATIENT LAB DATA TXT FILE':str)
+patient = parse_data("LOCATION OF YOUR PATIENT BASE DATA TXT FILE":str, "LOCATION OF YOUR PATIENT LAB DATA TXT FILE":str)
 
 # calculate patient's age
-patient_age(records, patient_id:str)
+patient["ID OF THE PATIENT"].age
+```
 ```
 For example, 
 
 ```python
-patient_age(records, "1A8791E3-A61C-455A-8DEE-763EB90C9B2C")
+patient_age["1A8791E3-A61C-455A-8DEE-763EB90C9B2C"].age
+```
 ```
 
 will return an integer such as the following output:
 
 ```python
->>> 45
+>>> 49
 ```
 
-### To determine whether or not a patient is sick, we use the `patient_is_sick` function. should take the data and return a boolean indicating whether the patient has ever had a test with value above (">") or below ("<") the given level. Below is the general instructions of running the function:
+### To calculate patient's age when they record their first lab test result, we just need to call the `.age_first_test` property of `Patient` Class. The general instruction for running the function:
 
 ```python
 from patient_analysis import parse_data
-from patient_analysis import patient_is_sick
 
 # parse the input files
-records = parse_data('LOCATION OF YOUR PATIENT BASE DATA TXT FILE':str, 'LOCATION OF YOUR PATIENT LAB DATA TXT FILE':str)
+patient = parse_data("LOCATION OF YOUR PATIENT BASE DATA TXT FILE":str, "LOCATION OF YOUR PATIENT LAB DATA TXT FILE":str)
+
+# calculate patient's age
+patient["ID OF THE PATIENT"].age_first_test
+```
+```
+For example, 
+
+```python
+patient["1A8791E3-A61C-455A-8DEE-763EB90C9B2C"].age_first_test
+```
+```
+
+will return an integer such as the following output:
+
+```python
+>>> 18
+```
+
+
+### To determine whether or not a patient is sick, we use the `is_sick` function stored in the `Patient` Class. should take the data and return a boolean indicating whether the patient has ever had a test with value above (">") or below ("<") the given level. Below is the general instructions of running the function:
+
+```python
+from patient_analysis import parse_data
+
+# parse the input files
+patient = parse_data('LOCATION OF YOUR PATIENT BASE DATA TXT FILE':str, 'LOCATION OF YOUR PATIENT LAB DATA TXT FILE':str)
 
 # determine whether or not a patient is sick
-patient_is_sick(records, patient_id: str, lab_name: str, operator: str, value: float)
+patient[PATIENT_ID:str].is_sick(LAB_NAME:str, OPERATOR:str, VALUE:float)
+```
+
 ```
 
 For example, 
 
 ```python
-patient_is_sick(records, "1A8791E3-A61C-455A-8DEE-763EB90C9B2C", "METABOLIC: ALBUMIN", ">", 4.0)
+patient["1A8791E3-A61C-455A-8DEE-763EB90C9B2C"].is_sick("CBC: MCHC", ">", 38.5)
 ```
 
 will return a Boolean such as the following output:
