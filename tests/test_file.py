@@ -37,7 +37,7 @@ def test_parse_data() -> None:
                 "LabName",
                 "LabValue",
                 "LabUnits",
-                "LabDate",
+                "LabDateTime",
             ],
             [
                 "1",
@@ -67,7 +67,7 @@ def test_parse_data() -> None:
     ) as (patient_file, lab_file):
         result = parse_data(patient_file, lab_file)
         patient1 = result["1"]
-        assert patient1.p_id == "1"
+        assert patient1.id == "1"
         assert patient1.gender == "Male"
         assert patient1.dob == datetime.strptime(
             "1973-08-16 10:58:34.413", "%Y-%m-%d %H:%M:%S.%f"
@@ -107,7 +107,7 @@ def test_all_about_patient_class() -> None:
                 "LabName",
                 "LabValue",
                 "LabUnits",
-                "LabDate",
+                "LabDateTime",
             ],
             [
                 "1",
