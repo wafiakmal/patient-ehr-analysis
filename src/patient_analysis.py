@@ -1,4 +1,5 @@
-"""Give an analysis of patient based on personal and lab results data."""
+"""Patient analysis trial."""
+import sqlite3
 from datetime import datetime
 
 
@@ -7,30 +8,40 @@ class Lab:
 
     def __init__(
         self,
-        p_id: str,
-        lab_name: str,
-        lab_value: str,
-        lab_date: str,
+        patient_id: str,
     ) -> None:
         """Initialize lab results."""
-        self.patient_id = p_id
-        self.name = lab_name
-        self.value = float(lab_value)
-        self.date = datetime.strptime(lab_date, "%Y-%m-%d %H:%M:%S.%f")
+        connection = sqlite3.connect("ehr_data.db")
+        c = connection.cursor()
+        self.c = c
+        self.p_id = patient_id
 
 
 class Patient:
     """Patient class for patient personal file."""
 
-    def __init__(
-        self, id: str, gender: str, dob: str, marital: str, labs: list[Lab]
-    ) -> None:
+    def __init__(self, patient_id: str) -> None:
         """Initialize patient personal file."""
-        self.id = id
-        self.gender = gender
-        self.dob = datetime.strptime(dob, "%Y-%m-%d %H:%M:%S.%f")
-        self.marital = marital
-        self.labs = labs
+        connection = sqlite3.connect("ehr_data.db")
+        self.c = connection.cursor()
+        self.p_id = patient_id
+
+    @property
+    def gender(self) -> str:
+        """Return the gender of the patient."""
+        cmd = f"SELECT gender FROM Patients WHERE patient_id = '{self.p_id}'"
+        genderz = self.c.execute(cmd).fetchone()[0]
+        self.c.close()
+        return f"{genderz}"
+
+    @property
+    def dob(self) -> datetime:
+        """Return the date of birth of the patient."""
+        command = f"SELECT dob FROM Patients WHERE patient_id = '{self.p_id}'"
+        self.c.execute(command)
+        dobx = self.c.fetchone()[0]
+        self.c.close()
+        return datetime.strptime(dobx, "%Y-%m-%d %H:%M:%S.%f")
 
     @property
     def age(self) -> int:
@@ -41,115 +52,101 @@ class Patient:
     @property
     def age_first_test(self) -> int:
         """Return the age of the patient at first test."""
-        all_dates = []
-        for i in range(len(self.labs)):
-            all_dates.append(self.labs[i].date)
-        early_age = min(all_dates) - self.dob
-        return int(early_age.days / 365.25)
+        command = (
+            f"SELECT lab_date FROM Labs "
+            f"WHERE patient_id = '{self.p_id}' ORDER BY lab_date"
+        )
+        self.f_lab = self.c.execute(command).fetchone()
+        first_lab = datetime.strptime(self.f_lab[0], "%Y-%m-%d %H:%M:%S.%f")
+        self.c.close()
+        return int((first_lab - self.dob).days / 365.25)
 
-    def is_sick(
-        self, labname_in: str, operator_in: str, value_in: float
-    ) -> bool:
+    def is_sick(self, labname: str, operator: str, value: float) -> bool:
         """Return whether the patient is sick."""
-        for lab in self.labs:
-            if lab.name == labname_in:
-                if operator_in == ">":
-                    if lab.value > value_in:
-                        return True
-                elif operator_in == "<":
-                    if lab.value < value_in:
-                        return True
+        if operator == ">":
+            command = (
+                f"SELECT lab_value FROM Labs "
+                f"WHERE patient_id = '{self.p_id}' "
+                f"AND lab_name = '{labname}' "
+                f"ORDER BY lab_value DESC"
+            )
+            high = self.c.execute(command).fetchone()
+            if high[0] > value:
+                self.c.close()
+                return True
+        elif operator == "<":
+            command = (
+                f"SELECT lab_value FROM Labs "
+                f"WHERE patient_id = '{self.p_id}' "
+                f"AND lab_name = '{labname}' "
+                f"ORDER BY lab_value ASC"
+            )
+            low = self.c.execute(command).fetchone()
+            if low[0] < value:
+                self.c.close()
+                return True
+        self.c.close()
         return False
 
 
-def parse_data(patient_file: str, lab_file: str) -> dict[str, Patient]:
-    """
-    Produce a dictionary for patient personal file and lab results.
-
-    Parameter
-    ---------
-    patient_file: str
-        Location of the file containing the patient personal file, txt format.
-    lab_file: str
-        Location of the file containing the lab results, txt format.
-
-    Variables:
-    patient rows (MP) : lines in the patient personal file
-        Rows containing patient data unique to each "PatientID".
-    patient columns (NP) : columns in the patient personal file
-        Columns containing patient personal file data.
-    lab rows (ML) : lines in the lab results file
-        Rows containing lab results unique to each "PatientID".
-    lab columns (NL) : columns in the lab results file
-        Columns containing lab results data.
-
-    Return
-    ------
-    hold_patient: dict
-        Dictionary containing patient personal file and lab results.
-
-    Time complexity analysis:
-
-        Lab data:
-        hold_lab is created for holding lab data O(1).
-        The file in lab_file is opened with utf-8-sig encoding O(1).
-        The header is created O(NL).
-        For loop of each line in the file O(ML).
-        Each line is split into a list O(NL).
-        The patient id is created O(1).
-        The lab info is created by zipping header and values O(NL).
-        A lab object is created O(1).
-        If the patient id is not in the dictionary, the patient id is added
-            as a key and the lab object is added as a value O(1).
-        If the patient id is in the dictionary, the lab object is added as a
-            value O(1).
-
-        Patient data:
-        hold_patient is created for holding patient personal file data O(1).
-        The file in patient_file is opened with utf-8-sig encoding O(1).
-        The header is created O(NP).
-        For loop of each line in the file O(MP).
-        Each line is split into a list O(NP).
-        The patient id is created O(1).
-        The patient info is created by zipping header and values O(NP).
-        A patient object is created O(1).
-        The patient id is added as a key and the patient object is added as a
-            value O(1).
-
-        This function complexity will scale according to the number of columns
-            and rows of lab data O(NL*ML) and patient personal data O(NP*MP).
-    """
-    hold_lab: dict[str, list[Lab]] = dict()  # O(1)
-    with open(lab_file, encoding="utf-8-sig") as f:  # O(1)
-        header = f.readline().strip().split("\t")  # O(NL)
-        for line in f:  # O(ML)
-            values = line.strip("\n").split("\t")  # O(NL)
-            patient_id = values[0]  # O(1)
-            lab_info = dict(zip(header[1:], values[1:]))  # O(NL
-            lab_object = Lab(
-                patient_id,
-                lab_info["LabName"],
-                lab_info["LabValue"],
-                lab_info["LabDateTime"],
-            )  # O(1)
-            if patient_id not in hold_lab:  # O(1)
-                hold_lab[patient_id] = []  # O(1)
-                hold_lab[patient_id].append(lab_object)  # O(1)
-            else:  # O(1)
-                hold_lab[patient_id].append(lab_object)  # O(1)
-    hold_patient = dict()  # O(1)
-    with open(patient_file, encoding="utf-8-sig") as f:  # O(1)
-        header = f.readline().strip().split("\t")  # O(NP)
-        for line in f:  # O(MP)
-            values = line.strip("\n").split("\t")  # O(NP)
-            patient_id = values[0]  # O(1)
-            patient_info = dict(zip(header[1:], values[1:]))  # O(NP)
-            patient_object = Patient(
-                patient_id,
-                patient_info["PatientGender"],
-                patient_info["PatientDateOfBirth"],
-                patient_info["PatientMaritalStatus"],
-                hold_lab[patient_id],
-            )  # O(1)
-            hold_patient[patient_id] = patient_object  # O(1)
-    return hold_patient  # O(1)
+def parse_data(patient_file: str, lab_file: str) -> str:
+    """Parse the patient and lab files."""
+    conn = sqlite3.connect("ehr_data.db")
+    c = conn.cursor()
+    c.execute(
+        f"SELECT name FROM sqlite_master WHERE "
+        f"type='table' AND name='Patients' OR name='Labs'"
+    )
+    tables_check = c.fetchone()
+    if tables_check is not None:
+        c.execute(f"DROP TABLE Patients")
+        c.execute(f"DROP TABLE Labs")
+    c.execute(
+        f"CREATE TABLE IF NOT EXISTS Patients(patient_id "
+        f"VARCHAR PRIMARY KEY, gender VARCHAR, dob DATETIME, "
+        f"race VARCHAR, marital VARCHAR, language VARCHAR, "
+        f"poverty VARCHAR)"
+    )
+    c.execute(
+        f"CREATE TABLE IF NOT EXISTS Labs(patient_id VARCHAR, "
+        f"admissionID VARCHAR, lab_name VARCHAR, lab_value REAL, "
+        f"lab_units VARCHAR, lab_date DATETIME)"
+    )
+    with open(lab_file, encoding="utf-8") as f:
+        header = f.readline().strip().split("\t")
+        for line in f:
+            values = line.strip().split("\t")
+            patient_id = values[0]
+            lab_info = dict(zip(header, values))
+            c.execute(
+                f"INSERT INTO Labs VALUES(?,?,?,?,?,?)",
+                (
+                    patient_id,
+                    lab_info["AdmissionID"],
+                    lab_info["LabName"],
+                    lab_info["LabValue"],
+                    lab_info["LabUnits"],
+                    lab_info["LabDateTime"],
+                ),
+            )
+    with open(patient_file, encoding="utf-8") as f:
+        header = f.readline().strip().split("\t")
+        for line in f:
+            values = line.strip().split("\t")
+            patient_id = values[0]
+            patient_info = dict(zip(header, values))
+            c.execute(
+                f"INSERT INTO Patients VALUES(?,?,?,?,?,?,?)",
+                (
+                    patient_id,
+                    patient_info["PatientGender"],
+                    patient_info["PatientDateOfBirth"],
+                    patient_info["PatientRace"],
+                    patient_info["PatientMaritalStatus"],
+                    patient_info["PatientLanguage"],
+                    patient_info["PatientPopulationPercentageBelowPoverty"],
+                ),
+            )
+    conn.commit()
+    conn.close()
+    return f"Data parsed successfully to SQL database."
