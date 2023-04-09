@@ -31,7 +31,6 @@ class Patient:
         """Return the gender of the patient."""
         cmd = f"SELECT gender FROM Patients WHERE patient_id = '{self.p_id}'"
         genderz = self.c.execute(cmd).fetchone()[0]
-        self.c.close()
         return f"{genderz}"
 
     @property
@@ -40,7 +39,6 @@ class Patient:
         command = f"SELECT dob FROM Patients WHERE patient_id = '{self.p_id}'"
         self.c.execute(command)
         dobx = self.c.fetchone()[0]
-        self.c.close()
         return datetime.strptime(dobx, "%Y-%m-%d %H:%M:%S.%f")
 
     @property
@@ -58,7 +56,6 @@ class Patient:
         )
         self.f_lab = self.c.execute(command).fetchone()
         first_lab = datetime.strptime(self.f_lab[0], "%Y-%m-%d %H:%M:%S.%f")
-        self.c.close()
         return int((first_lab - self.dob).days / 365.25)
 
     def is_sick(self, labname: str, operator: str, value: float) -> bool:
@@ -72,7 +69,6 @@ class Patient:
             )
             high = self.c.execute(command).fetchone()
             if high[0] > value:
-                self.c.close()
                 return True
         elif operator == "<":
             command = (
@@ -85,8 +81,6 @@ class Patient:
             if low[0] < value:
                 self.c.close()
                 return True
-        self.c.close()
-        return False
 
 
 def parse_data(patient_file: str, lab_file: str) -> str:
