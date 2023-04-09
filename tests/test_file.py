@@ -14,6 +14,8 @@ def test_parse_data() -> None:
                 "PatientDateOfBirth",
                 "PatientRace",
                 "PatientMaritalStatus",
+                "PatientLanguage",
+                "PatientPopulationPercentageBelowPoverty",
             ],
             [
                 "1",
@@ -21,6 +23,8 @@ def test_parse_data() -> None:
                 "1973-08-16 10:58:34.413",
                 "White",
                 "Married",
+                "English",
+                "10",
             ],
             [
                 "2",
@@ -28,6 +32,8 @@ def test_parse_data() -> None:
                 "1952-01-18 19:51:12.917",
                 "Asian",
                 "Single",
+                "English",
+                "20",
             ],
         ],
         [
@@ -72,6 +78,7 @@ def test_parse_data() -> None:
 def test_all_about_patient_class() -> None:
     assert Patient("1").age == 49
     assert Patient("1").age_first_test == 18
+    assert Patient("2").gender == "Female"
     assert Patient("1").is_sick("METABOLIC: ALBUMIN", ">", 100.5)
     assert Patient("1").is_sick("METABOLIC: ALBUMIN", "<", 200.5)
     assert Patient("1").is_sick("CBC: MCHC", ">", 38.5) is False
