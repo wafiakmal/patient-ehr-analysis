@@ -68,7 +68,7 @@ class Patient:
                 f"ORDER BY lab_value DESC"
             )
             high = self.c.execute(command).fetchone()
-            if high[0] > value:
+            if high is not None and high[0] > value:
                 return True
         elif operator == "<":
             command = (
@@ -78,9 +78,9 @@ class Patient:
                 f"ORDER BY lab_value ASC"
             )
             low = self.c.execute(command).fetchone()
-            if low[0] < value:
-                self.c.close()
+            if low is not None and low[0] < value:
                 return True
+        return False
 
 
 def parse_data(patient_file: str, lab_file: str) -> str:
