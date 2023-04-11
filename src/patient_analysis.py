@@ -14,7 +14,7 @@ class Lab:
         connection = sqlite3.connect("ehr_data.db")
         c = connection.cursor()
         self.c = c
-        self.p_id = patient_id
+        self.patient_id = patient_id
 
 
 class Patient:
@@ -24,20 +24,21 @@ class Patient:
         """Initialize patient personal file."""
         connection = sqlite3.connect("ehr_data.db")
         self.c = connection.cursor()
-        self.p_id = patient_id
+        self.id = patient_id
 
     @property
     def gender(self) -> str:
         """Return the gender of the patient."""
-        cmd = f"SELECT gender FROM Patients WHERE patient_id = '{self.p_id}'"
-        genderz = self.c.execute(cmd).fetchone()[0]
+        cmd = "SELECT gender FROM Patients WHERE patient_id = ?"
+        self.c.execute(cmd, (self.id,))
+        genderz = self.c.fetchone()[0]
         return f"{genderz}"
 
     @property
     def dob(self) -> datetime:
         """Return the date of birth of the patient."""
-        command = f"SELECT dob FROM Patients WHERE patient_id = '{self.p_id}'"
-        self.c.execute(command)
+        cmd = "SELECT dob FROM Patients WHERE patient_id = ?"
+        self.c.execute(cmd, (self.id,))
         dobx = self.c.fetchone()[0]
         return datetime.strptime(dobx, "%Y-%m-%d %H:%M:%S.%f")
 
@@ -51,10 +52,10 @@ class Patient:
     def age_first_test(self) -> int:
         """Return the age of the patient at first test."""
         command = (
-            f"SELECT lab_date FROM Labs "
-            f"WHERE patient_id = '{self.p_id}' ORDER BY lab_date"
+            "SELECT lab_date FROM Labs "
+            "WHERE patient_id = ? ORDER BY lab_date"
         )
-        self.f_lab = self.c.execute(command).fetchone()
+        self.f_lab = self.c.execute(command, (self.id,)).fetchone()
         first_lab = datetime.strptime(self.f_lab[0], "%Y-%m-%d %H:%M:%S.%f")
         return int((first_lab - self.dob).days / 365.25)
 
@@ -62,22 +63,22 @@ class Patient:
         """Return whether the patient is sick."""
         if operator == ">":
             command = (
-                f"SELECT lab_value FROM Labs "
-                f"WHERE patient_id = '{self.p_id}' "
-                f"AND lab_name = '{labname}' "
-                f"ORDER BY lab_value DESC"
+                "SELECT lab_value FROM Labs "
+                "WHERE patient_id = ? "
+                "AND lab_name = ? "
+                "ORDER BY lab_value DESC"
             )
-            high = self.c.execute(command).fetchone()
+            high = self.c.execute(command, (self.id, labname)).fetchone()
             if high is not None and high[0] > value:
                 return True
         elif operator == "<":
             command = (
-                f"SELECT lab_value FROM Labs "
-                f"WHERE patient_id = '{self.p_id}' "
-                f"AND lab_name = '{labname}' "
-                f"ORDER BY lab_value ASC"
+                "SELECT lab_value FROM Labs "
+                "WHERE patient_id = ? "
+                "AND lab_name = ? "
+                "ORDER BY lab_value ASC"
             )
-            low = self.c.execute(command).fetchone()
+            low = self.c.execute(command, (self.id, labname)).fetchone()
             if low is not None and low[0] < value:
                 return True
         return False
@@ -88,23 +89,22 @@ def parse_data(patient_file: str, lab_file: str) -> str:
     conn = sqlite3.connect("ehr_data.db")
     c = conn.cursor()
     c.execute(
-        f"SELECT name FROM sqlite_master WHERE "
-        f"type='table' AND name='Patients' OR name='Labs'"
+        "SELECT name FROM sqlite_master "
+        "WHERE type='table' AND name='Patients' OR name='Labs'"
     )
     tables_check = c.fetchone()
     if tables_check is not None:
-        c.execute(f"DROP TABLE Patients")
-        c.execute(f"DROP TABLE Labs")
+        c.execute("DROP TABLE Patients")
+        c.execute("DROP TABLE Labs")
     c.execute(
-        f"CREATE TABLE IF NOT EXISTS Patients(patient_id "
-        f"VARCHAR PRIMARY KEY, gender VARCHAR, dob DATETIME, "
-        f"race VARCHAR, marital VARCHAR, language VARCHAR, "
-        f"poverty VARCHAR)"
+        "CREATE TABLE IF NOT EXISTS Patients(patient_id VARCHAR PRIMARY KEY, "
+        "gender VARCHAR, dob DATETIME, race VARCHAR, marital VARCHAR, "
+        "language VARCHAR, poverty VARCHAR)"
     )
     c.execute(
-        f"CREATE TABLE IF NOT EXISTS Labs(patient_id VARCHAR, "
-        f"admissionID VARCHAR, lab_name VARCHAR, lab_value REAL, "
-        f"lab_units VARCHAR, lab_date DATETIME)"
+        "CREATE TABLE IF NOT EXISTS Labs(patient_id VARCHAR, "
+        "admissionID VARCHAR, lab_name VARCHAR, lab_value REAL, "
+        "lab_units VARCHAR, lab_date DATETIME)"
     )
     with open(lab_file, encoding="utf-8") as f:
         header = f.readline().strip().split("\t")
@@ -113,7 +113,7 @@ def parse_data(patient_file: str, lab_file: str) -> str:
             patient_id = values[0]
             lab_info = dict(zip(header, values))
             c.execute(
-                f"INSERT INTO Labs VALUES(?,?,?,?,?,?)",
+                "INSERT INTO Labs VALUES(?,?,?,?,?,?)",
                 (
                     patient_id,
                     lab_info["AdmissionID"],
@@ -130,7 +130,7 @@ def parse_data(patient_file: str, lab_file: str) -> str:
             patient_id = values[0]
             patient_info = dict(zip(header, values))
             c.execute(
-                f"INSERT INTO Patients VALUES(?,?,?,?,?,?,?)",
+                "INSERT INTO Patients VALUES(?,?,?,?,?,?,?)",
                 (
                     patient_id,
                     patient_info["PatientGender"],
@@ -143,4 +143,4 @@ def parse_data(patient_file: str, lab_file: str) -> str:
             )
     conn.commit()
     conn.close()
-    return f"Data parsed successfully to SQL database."
+    return "Data parsed successfully to SQL database."
